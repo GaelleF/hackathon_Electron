@@ -74,7 +74,7 @@ const createDivPerso = () => {
 }
 const createDivZone = (urlBack) => {
 	let divZone = document.createElement("div")
-	divZone.style.backgroundImage = urlBack
+	divZone.style.backgroundImage = "url('image/eiffel_tower.jpg')"
 	divZone.style.height = "1260px"
 	divZone.style.position ="absolute"
 	divZone.style.top="0px"
@@ -142,7 +142,8 @@ const lancerCombat=(urlBack,numBad,fnScenario) => {
 	    					//divZoneId.removeChild(perso1)
 	    				  //divZoneId.removeChild(imageBad[numBad])
 	    					reset()
-	    					console.log(`${perso1.name} a gagné !!!!!!  `)
+							console.log(`${perso1.name} a gagné !!!!!!  `)
+							lancerCombat('image/eiffel_tower.jpg',1)
 	    				},1630)//setTimeout
 	    			}
 	    			
@@ -153,7 +154,8 @@ const lancerCombat=(urlBack,numBad,fnScenario) => {
 		    			divZoneId.innerHTML= ''
 	    				divPersoId.innerHTML= ''
 		    			reset()
-		    			console.log('perso2win')
+						console.log('perso2win')
+						lancerCombat('image/eiffel_tower.jpg',1)
 	    			},1630)//setTimeout
 	    		}
 	    	})
