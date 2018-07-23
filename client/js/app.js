@@ -24,7 +24,18 @@ const connexionDiv = document.getElementById('connexion')
 const connectionSocket = new WebSocket('ws://localhost:8080','incoming')
 connectionSocket.onmessage = (event) => {
   console.log('event', event)
-  messageSocket = event.data
+  const infoSocketDiv = document.getElementById('infoSocket')
+  msgSocket = JSON.parse(event.data).message
+  console.log(msgSocket)
+  infoSocketDiv.innerHTML = `${msgSocket}`
+
+  if (message === 'heroes of your enemy') {
+    badTeam = JSON.parse(event.data).badTeam
+  }
+
+
+
+
 }
 
 const reset = () => {
@@ -243,7 +254,9 @@ const lancerCombat=(urlBack,numBad,fnScenario) => {
 			console.log(imagePerso[i])
 			placerPerso(imagePerso[i],"400px","450px",divZoneId)
 			placerPerso(imageBad[numBad],"400px","900px",divZoneId)
-			createButtonFight(persoTeam[i],badTeam[numBad],i,urlBack)
+      createButtonFight(persoTeam[i],badTeam[numBad],i,urlBack)
+      connectionSocket.send(JSON.stringify({'action':'playHeroe','numPartie': numPartie, 'pseudo': pseudo,
+      heroePlay: persoTeam[i] }))
 		})
 	}
 }
@@ -301,8 +314,6 @@ const persoPage = () => {
 	        persoTeam.push(fichePerso)
 	        console.log("Team des superHeroes : ")
 	        console.log(persoTeam)
-
-
 	        injectTeamHeroes.innerHTML = persoTeam.map(heroesTeamElement).join('')
 	    })
 
@@ -322,6 +333,9 @@ const persoPage = () => {
 	   
 	    btn.innerHTML = '<button class="button_next"><span>Suite</span></button>'
 	    btn.addEventListener("click",(e)=>{
+        //envoi au socket
+        connectionSocket.send(JSON.stringify({'action':'chooseHeroes','numPartie': numPartie, 'pseudo': pseudo,
+         'heroes': persoTeam}))
 	    	reset()
 	    	lancerCombat('image/eiffel_tower.jpg',0)
 	    })
@@ -395,9 +409,9 @@ const pageConnexion = () => {
           pseudo = document.getElementById('pseudoInputId').value
           console.log('partie co', numPartie, pseudo)
           reset()
-          connexionDiv.innerHTML = `Hello ${pseudo}     partie n°${numPartie}`
-          connectionSocket.send(JSON.stringify({'numPartie': numPartie, 'pseudo': pseudo }))
-
+          
+          connectionSocket.send(JSON.stringify({'action':'connection','numPartie': numPartie, 'pseudo': pseudo }))
+            connexionDiv.innerHTML = `Hello ${pseudo}     partie n°${numPartie} `
           persoPage()})
 				connexionDiv.appendChild(goButton);
   }

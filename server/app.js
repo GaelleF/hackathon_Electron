@@ -12,17 +12,31 @@ app.get('/', (req, res, err) => {
 wss.on('connection', function connection(ws) {
     ws.on('message', function incoming(message) {
         data = JSON.parse(message)
-        player = {'ws': ws, 'pseudo': data.pseudo}
-        games[data.numPartie]?games[data.numPartie].push(player):games[data.numPartie]=[player]
-       console.log('g1', games)
-        if (games[data.numPartie].length === 2) {
-
-            console.log(games)
-            for (wsConnect of games[data.numPartie]) {
-                wsConnect? wsConnect.ws.send('a friend is connect') : console.log('y a un pb quelque part!')
-            }
+        console.log('init', data)
+        if (data.action === 'connection') {
+            player = {'ws': ws, 'pseudo': data.pseudo,'heroes':[], turn:0, heroePlay:{}}
+             games[data.numPartie]?games[data.numPartie].push(player):games[data.numPartie]=[player]
+            if (games[data.numPartie].length === 2) {
+              for (wsConnect of games[data.numPartie]) {
+                wsConnect? wsConnect.ws.send(JSON.stringify({'message':'a friend is connect'})) : console.log('y a un pb quelque part!')
+              }
+            }    
         }
-        console.log(games)
+        else if (data.action === 'chooseHeroes') {
+          console.log('choose', data)
+          for (player of games[data.numPartie]) {
+            if (player.pseudo === data.pseudo) {
+              player.heroes = data.heroes
+            } 
+            else {
+              player.ws.send(JSON.stringify({'message':'heroes of your enemy', 'badTeam':data.heroes}))
+            } 
+          }
+             console.log('heroes', games[data.numPartie])
+        }
+        else if (data.action === 'playHeroe') {
+          console.log('play', data)
+        }
     })
 })
 
