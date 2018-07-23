@@ -129,3 +129,15 @@ span {
     background-color: #f4511e ;
     box-shadow: 10px 10px 50px rgb(244, 81, 30);
 }
+
+/******* connexion  ***************************/
+
+#connexion {
+    padding: 30px;
+    display : flex;
+    background-color: green;
+}
+
+#connexionButtonId {
+    background-color: black;
+}

@@ -3,6 +3,8 @@ let persoTeam = []
 let imagePerso=[]
 let imageBad =[]
 let badTeam =[]
+let numPartie = ''
+let Pseudo = ''
 
 const map_element =document.getElementById('map_container')
 const fightScreenElt = document.getElementById("fightScreen")
@@ -16,6 +18,7 @@ const elem1 =document.getElementById('tour')
 const elem2 =document.getElementById('gare')
 const elem3 =document.getElementById('WCS')
 const story1 = document.getElementById('story')
+const connexionDiv = document.getElementById('connexion')
 
 
 const reset = () => {
@@ -29,7 +32,8 @@ const reset = () => {
 	elem1.innerHTML = ""
 	elem2.innerHTML = ""
 	elem3.innerHTML = ""
-	story1.innerHTML = ""
+  story1.innerHTML = ""
+  connexionDiv.innerHTML = ""
 }
 
 /*creation de la map */
@@ -339,5 +343,69 @@ const textPageIntro = (text, url) => {
     })
 }
 
+const pageConnexion = () => {
+
+  const createNameInput=()=> {
+    let pseudoInput = document.createElement("input")
+    pseudoInput.setAttribute("type","text")
+    pseudoInput.setAttribute("placeholder","PSEUDO")
+    pseudoInput.id = "pseudoInputId"
+    connexionDiv.appendChild(pseudoInput);
+  }
+  
+  const createNumInput=()=> {
+    let numInput = document.createElement("input")
+    numInput.setAttribute("type","text")
+    numInput.setAttribute("placeholder","numéro de la partie")
+    //numInput.style.color = "b"
+
+    numInput.id = "numInputId"
+    connexionDiv.appendChild(numInput);
+  }
+
+
+	const createButtonConnexion = () => {
+		let connexionButton = document.createElement("input")
+				connexionButton.setAttribute("type","button")
+        connexionButton.style.color = "white"
+        connexionButton.setAttribute("value","CREER PARTIE")
+				connexionButton.id = "connexionButtonId"
+				connexionButton.addEventListener("click", (e)=> {
+          const numRandom = Math.floor(Math.random()*100000)
+          numInput = document.getElementById('numInputId')
+          numInput.value = numRandom
+        })
+				connexionDiv.appendChild(connexionButton);
+  }
+
+  const createButtonGo = () => {
+		let goButton = document.createElement("input")
+				goButton.setAttribute("type","button")
+        goButton.style.color = "white"
+        goButton.setAttribute("value","go")
+				goButton.id = "goButtonId"
+				goButton.addEventListener("click", (e)=> {
+          numPartie = document.getElementById('numInputId').value
+          pseudo = document.getElementById('pseudoInputId').value
+          console.log('partie co', numPartie, pseudo)
+          
+
+
+
+          reset()
+          persoPage()})
+				connexionDiv.appendChild(goButton);
+  }
+  
+  createNameInput() 
+  createButtonConnexion()
+  createNumInput()
+  createButtonGo()
+  //connexionDiv.innerHTML
+ 
+
+}
+
 //Lancement
-persoPage()
+//persoPage()
+pageConnexion()
