@@ -5,6 +5,7 @@ let imageBad =[]
 let badTeam =[]
 let numPartie = ''
 let Pseudo = ''
+let msgSocket = ''
 
 const map_element =document.getElementById('map_container')
 const fightScreenElt = document.getElementById("fightScreen")
@@ -20,6 +21,11 @@ const elem3 =document.getElementById('WCS')
 const story1 = document.getElementById('story')
 const connexionDiv = document.getElementById('connexion')
 
+const connectionSocket = new WebSocket('ws://localhost:8080','incoming')
+connectionSocket.onmessage = (event) => {
+  console.log('event', event)
+  messageSocket = event.data
+}
 
 const reset = () => {
 	fightScreenElt.innerHTML = ""
@@ -388,11 +394,10 @@ const pageConnexion = () => {
           numPartie = document.getElementById('numInputId').value
           pseudo = document.getElementById('pseudoInputId').value
           console.log('partie co', numPartie, pseudo)
-          
-
-
-
           reset()
+          connexionDiv.innerHTML = `Hello ${pseudo}     partie n°${numPartie}`
+          connectionSocket.send(JSON.stringify({'numPartie': numPartie, 'pseudo': pseudo }))
+
           persoPage()})
 				connexionDiv.appendChild(goButton);
   }
