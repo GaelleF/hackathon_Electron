@@ -35,7 +35,17 @@ wss.on('connection', function connection(ws) {
              console.log('heroes', games[data.numPartie])
         }
         else if (data.action === 'playHeroe') {
-          console.log('play', data)
+          for (player of games[data.numPartie]) {
+            if (player.pseudo === data.pseudo) {
+              player.playHeroe = data.playHeroe
+ 
+            } 
+            // si les 2 player ont choisit leur joueur : renvoyer animation(nbFight) et nouveau tableau des heros à chacun!
+            //if (games[data.numPartie]))
+
+
+              player.ws.send(JSON.stringify({'message':'heroes of your enemy', 'badTeam':data.heroes}))
+            } 
         }
     })
 })

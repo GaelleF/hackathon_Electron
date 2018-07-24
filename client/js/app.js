@@ -24,6 +24,7 @@ const connexionDiv = document.getElementById('connexion')
 const connectionSocket = new WebSocket('ws://localhost:8080','incoming')
 connectionSocket.onmessage = (event) => {
   console.log('event', event)
+  message = JSON.parse(event.data).message
   const infoSocketDiv = document.getElementById('infoSocket')
   msgSocket = JSON.parse(event.data).message
   console.log(msgSocket)
@@ -31,6 +32,7 @@ connectionSocket.onmessage = (event) => {
 
   if (message === 'heroes of your enemy') {
     badTeam = JSON.parse(event.data).badTeam
+    console.log('badteam')
   }
 
 
@@ -53,35 +55,6 @@ const reset = () => {
   connexionDiv.innerHTML = ""
 }
 
-/*creation de la map */
-
-const createMap = () => {
-	reset()
-	map_element.innerHTML = `<img src ="image/paris_map.jpg" alt="Carte des combats" style="max-width: 1800px;
-		height: auto;">`
-
-	elem1.innerHTML = `<img id="combat1" src ="image/eiffel_tower.png" alt="Tour Eiffel" 
-	style="max-width: 100px; height:auto; position:absolute; top: 500px; left: 700px">`
-	combat1.addEventListener("click", (e)=>{
-		reset()
-    	lancerCombat("url('image/eiffel_tower.jpg')",0,"fnscenario")
-	})
-
-	elem2.innerHTML = `<img id="combat2" src ="image/gare.png" alt="Gare de Lyon" 
-	style="max-width: 200px; height:auto; position:absolute; top: 600px; left: 1100px">`
-	combat2.addEventListener("click", (e)=>{
-		reset()
-    	lancerCombat("url('image/gare.jpg')",1,"fnScenario")
-	})
-
-	elem3.innerHTML = `<img id="combat3" src ="image/WCS.png" alt="Wild Code School" 
-	style="max-width: 100px; height:auto; position:absolute; top: 600px; left: 900px">`
-	combat3.addEventListener("click", (e)=>{
-	reset()
-	textPage("Les valeureux héros sont victorieux de leurs défis, et peuvent maintenant délivrer de leur victimes de la privation de la fibre.<br> Par chance, en retournant à la WCS les supers-héros ont aperçus un technicien 'Orange' sur leur chemin et l'ont trainé jusqu'a la WCS.<br>FIN HAPPY","image/trio_de_choc.png")
-	btn2.innerHTML = ""
-	})
-}
 
 /*création zone de fight*/
 
@@ -129,6 +102,10 @@ const caractere = (perso) => {
 							<p>life : ${perso.powerstats.combat} </p>
 							<p> attack : ${perso.powerstats.strength}</p>`
 	return divCaract
+}
+
+const animation = (perso,badPerso,xBeg,xEnd,yBeg,yEnd,yBegBad,time) => {
+
 }
 
 /*lancer la pâge combat avec les perso selectionné */
@@ -261,7 +238,7 @@ const lancerCombat=(urlBack,numBad,fnScenario) => {
 	}
 }
 
-//creer page de selection des persos
+/**********************creer page de selection des persos ***********************************************************************/
 const persoPage = () => {
 	const baseUrl = 'https://cdn.rawgit.com/akabab/superhero-api/0.2.0/api'
 
@@ -284,8 +261,6 @@ const persoPage = () => {
 	        selecteur.push(randomHeroes)
 	    }
 
-	    // bad random team
-	    /*const badTeam = []*/
 	    for (let i = 0; i < 3; i++) {
 	        const randomBadHeroes = heroes[Math.floor((Math.random() * heroes.length))]
 	        badTeam.push(randomBadHeroes)
@@ -300,10 +275,9 @@ const persoPage = () => {
 	                <h3>${monarray.name}</h3>
 	                <span>Life : ${monarray.powerstats.combat}</span>
 	                <span>Attack : ${monarray.powerstats.strength}</span>
-	            </div>
-	    `
-	    }
-
+	            </div>	    `
+      }
+      
 	    injectHeroes.innerHTML = selecteur.map(heroesElement).join('')
 
 	    //Creation de la team
@@ -344,25 +318,6 @@ const persoPage = () => {
 	start()
 }
 
-//creation des pages de texte
-const textPage = (text, url) => {
-    story1.innerHTML = `<div class="letexte">${text} <img class="letroll" src=${url} /></div>`
-    btn2.innerHTML = '<button class="button_next"><span>Suite</span></button>'
-    btn2.addEventListener("click",(e)=>{
-    	reset()
-    	createMap()
-    })
-}
-
-const textPageIntro = (text, url) => {
-    story1.innerHTML = `<div class="letexte">${text} <img class="letroll" src=${url} /></div>`
-    btn2.innerHTML = '<button class="button_next"><span>Suite</span></button>'
-    btn2.addEventListener("click",(e)=>{
-    	reset()
-    	persoPage()
-    })
-}
-
 const pageConnexion = () => {
 
   const createNameInput=()=> {
@@ -378,7 +333,6 @@ const pageConnexion = () => {
     numInput.setAttribute("type","text")
     numInput.setAttribute("placeholder","numéro de la partie")
     //numInput.style.color = "b"
-
     numInput.id = "numInputId"
     connexionDiv.appendChild(numInput);
   }
@@ -420,11 +374,7 @@ const pageConnexion = () => {
   createButtonConnexion()
   createNumInput()
   createButtonGo()
-  //connexionDiv.innerHTML
- 
 
 }
 
-//Lancement
-//persoPage()
 pageConnexion()
