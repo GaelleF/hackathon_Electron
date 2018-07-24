@@ -36,8 +36,10 @@ connectionSocket.onmessage = (event) => {
     badTeam = JSON.parse(event.data).badTeam
     console.log('badteam')
   }
-
-
+  if (message === 'turn play') {
+    data = JSON.parse(event.data)
+    console.log('TURN PLAY ', data)
+  }
 
 
 }

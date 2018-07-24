@@ -14,7 +14,7 @@ wss.on('connection', function connection(ws) {
         data = JSON.parse(message)
        // console.log('init', data)
         if (data.action === 'connection') {
-            player = {'ws': ws, 'pseudo': data.pseudo,'heroes':[], turn:0, heroePlay:{}}
+            player = {'ws': ws, 'pseudo': data.pseudo,'heroes':[], turn:0, heroePlay:{}, adversaire : {}}
              games[data.numPartie]?games[data.numPartie].push(player):games[data.numPartie]=[player]
             if (games[data.numPartie].length === 2) {
               for (wsConnect of games[data.numPartie]) {
@@ -50,15 +50,35 @@ wss.on('connection', function connection(ws) {
               const player1 = games[data.numPartie][0]
               const player2 = games[data.numPartie][1]
               let nbFight = 0 
-              while ( player1.heroePlay.powerstats.combat > 0 || player1.heroePlay.powerstats.combat > 0 ) {
+              player1.adversaire = player2.heroePlay
+              player2.adversaire = player1.heroePlay
+              //maj adversaire
+              while ( player1.heroePlay.powerstats.combat > 0 && player1.heroePlay.powerstats.combat > 0 ) {
                 player1.heroePlay.powerstats.combat -= player2.heroePlay.powerstats.strength
                 player2.heroePlay.powerstats.combat -= player1.heroePlay.powerstats.strength
                 console.log('player1', player1.heroePlay)
                 console.log('player2', player2.heroePlay)
                 nbFight += 1
+                //suppr heros mort and maj combat heros qui a combattu : badteam goodteam et adversaire
               }
-              
+              if (player1.heroePlay.powerstats.combat <= 0) { 
+                player1.heroes = player1.heroes.filter(heroe => heroe.id !== player1.heroePlay.id)
+                // player2.heroes = player2.heroes.forEach(heroe => {if(heroe.id === player2.heroePlay.id){
+                //   heroe.powerstats.combat = player2.heroePlay.powerstats.combat }!!!!!!!!!!!!!!!!!! A faire !!!!!!!!!!!!!!!!!!!!
+                
+                console.log('player1 lose', player1.heroes)
+                console.log('player1 lose : player2', player2.heroes)
+              }
+              if (player1.heroePlay.powerstats.combat <= 0) { 
+                player1.heroes = player1.heroes.filter(heroe => heroe.id !== player1.heroePlay.id)
+                console.log('player1 lose', player1.heroes)
+              }
 
+
+              for (player of games[data.numPartie]) {
+
+                player.ws.send(JSON.stringify({'message':'play turn', 'heroes':player.heroes, 'heroePlay': player.heroePlay,'adversaire': player.adversaire, 'nbFight': nbFight}))
+              }
 
 
 
