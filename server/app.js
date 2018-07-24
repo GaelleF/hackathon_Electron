@@ -34,13 +34,13 @@ wss.on('connection', function connection(ws) {
           }
             // console.log('heroes', games[data.numPartie])
         }
-        else if (data.action === 'playHeroe') {
+        else if (data.action === 'playHeroe' && games[data.numPartie].length > 1) {
           for (player of games[data.numPartie]) {
             if (player.pseudo === data.pseudo) {
               player.heroePlay = data.heroePlay
               player.turn = data.turn
             } 
-            // si les 2 player ont choisit leur joueur : renvoyer animation(nbFight) et nouveau tableau des heros à chacun!
+            // si les 2 player ont choisit  leur joueur : renvoyer animation(nbFight) et nouveau tableau des heros à chacun!
             //if (games[data.numPartie]))
              // player.ws.send(JSON.stringify({'message':'heroes of your enemy', 'badTeam':data.heroes}))
             } 
@@ -64,11 +64,13 @@ wss.on('connection', function connection(ws) {
               if (player1.heroePlay.powerstats.combat <= 0) { 
                 player1.heroes = player1.heroes.filter(heroe => heroe.id !== player1.heroePlay.id)
                 // player2.heroes = player2.heroes.forEach(heroe => {if(heroe.id === player2.heroePlay.id){
-                //   heroe.powerstats.combat = player2.heroePlay.powerstats.combat }!!!!!!!!!!!!!!!!!! A faire !!!!!!!!!!!!!!!!!!!!
-                
+                // heroe.powerstats.combat = player2.heroePlay.powerstats.combat }!!!!!!!!!!!!!!!!!! A faire !!!!!!!!!!!!!!!!!!!!
+                // ajouter phrase personalisé
                 console.log('player1 lose', player1.heroes)
                 console.log('player1 lose : player2', player2.heroes)
+                
               }
+
               if (player1.heroePlay.powerstats.combat <= 0) { 
                 player1.heroes = player1.heroes.filter(heroe => heroe.id !== player1.heroePlay.id)
                 console.log('player1 lose', player1.heroes)

@@ -8,6 +8,8 @@ let Pseudo = ''
 let msgSocket = ''
 let turn = 0
 let finish = true
+let adversaire = {}
+let imageHeroeSelect = {}
 
 const map_element =document.getElementById('map_container')
 const fightScreenElt = document.getElementById("fightScreen")
@@ -23,6 +25,7 @@ const btn2 = document.getElementById('btn_next2')
 const story1 = document.getElementById('story')
 const connexionDiv = document.getElementById('connexion')
 
+/*connexion webSocket *******************************/
 const connectionSocket = new WebSocket('ws://localhost:8080','incoming')
 connectionSocket.onmessage = (event) => {
   console.log('event', event)
@@ -30,15 +33,26 @@ connectionSocket.onmessage = (event) => {
   const infoSocketDiv = document.getElementById('infoSocket')
   msgSocket = JSON.parse(event.data).message
   console.log(msgSocket)
-  infoSocketDiv.innerHTML = `${msgSocket}`
+  infoSocketDiv.innerHTML = `message from socket : ${msgSocket}`
 
   if (message === 'heroes of your enemy') {
     badTeam = JSON.parse(event.data).badTeam
     console.log('badteam')
   }
-  if (message === 'turn play') {
-    data = JSON.parse(event.data)
-    console.log('TURN PLAY ', data)
+  if (message === 'play turn') {
+    let  data = JSON.parse(event.data)
+    console.log('PLAY TURN ', data.message, data)
+    let nbFight = data.nbFight
+    imageBad = []
+    createPicturePerso(data.adversaire, imageBad)
+    let badPerso = imageBad[0]
+    for (let i = 0; i < nbFight; i++) {
+      console.log('ANIMATION', nbFight)
+      animation(imageHeroeSelect, badPerso, 400, 275, 450, 575, 900, i*1630)
+    }
+  
+    //bcp a faire !
+    //1630)setTimeout
   }
 
 
@@ -96,7 +110,7 @@ const placerPerso = (persoImg,posX, posY,emplacement)=>{
 	emplacement.appendChild(persoImg);
 }
 
-//div avec caractéristique
+//div avec caractéristiques
 const caractere = (perso) => {
 	let divCaract = document.createElement("div")
 	divCaract.style.color = "white"
@@ -109,14 +123,49 @@ const caractere = (perso) => {
 }
 
 const animation = (perso,badPerso,xBeg,xEnd,yBeg,yEnd,yBegBad,time) => {
+  let posX = xBeg
+  let posY = yBeg
+  let posYbad = yBegBad
+  const divZoneId = document.getElementById('divZoneId')
+  console.log("function moveHeroes")
+  console.log(perso)
+  const persoSave = perso
+  const persoBadSave = badPerso
+  //placerPerso(perso,"550px","300px",divZoneId)
+  setTimeout(() => {
+  const frame = (perso) => {
+    if (posX == xEnd) {
+      clearInterval(anim)
+      setTimeout(()=>{
+        placerPerso(persoSave,xBeg+"px",yBeg+"px",divZoneId)
+        placerPerso(persoBadSave,xBeg+"px",yBegBad+"px",divZoneId)
+      },1000)
 
+      /*console.log("retour = ")
+      if (retour) {moveHeroe(persoSave,xEnd,xBeg,yEnd,yBeg,"d","m",false)}*/
+    }
+    else {//utiliser la fonction placerPerso?
+      posX--
+      posY++
+      posYbad--
+      /*console.log("frame function"+posX)
+        console.log(persoSave)*/
+      /*perso.style.top = posX +"px"
+      perso.style.left = posY +"px"*/
+      placerPerso(persoSave,posX+"px",posY+"px",divZoneId)
+      placerPerso(persoBadSave,posX+"px",posYbad+"px",divZoneId)
+      /*console.log("pos heroes x =" + posX +"y = "+ posY)*/
+    }
+  }
+      const anim = setInterval(frame,5)
+
+}, time)
 }
-
 /*lancer la pâge combat avec les perso selectionné */
 const lancerCombat=(urlBack,numBad,fnScenario) => {
 
 /*creation du bouton fight si clic sur perso */
-	const createButtonFight = (perso1,perso2,i,urlB) => {
+	/*const createButtonFight = (perso1,perso2,i,urlB) => {
 		let fightButton = document.createElement("input")
 			fightButton.setAttribute("name","fightButton")
 	    	fightButton.setAttribute("value","FIGHT")
@@ -132,7 +181,7 @@ const lancerCombat=(urlBack,numBad,fnScenario) => {
 			fightButton.width = "100px"
 	    	fightButton.addEventListener("click", (e)=> {
 	    		moveHeroe(imagePerso[i],imageBad[numBad],400,275,450,575,900)
-	    		/*moveHeroe(imageBad[numBad],400,300,900,800,"m","d",true)*/
+	    		// moveHeroe(imageBad[numBad],400,300,900,800,"m","d",true)
 	    		
 	    		perso1.powerstats.combat -= perso2.powerstats.strength
 	    		perso2.powerstats.combat -= perso1.powerstats.strength
@@ -163,7 +212,7 @@ const lancerCombat=(urlBack,numBad,fnScenario) => {
 	    	})
 
 	   		divZoneId.appendChild(fightButton);
-	}
+	}*/
 
 	const moveHeroe = (perso,badPerso,xBeg,xEnd,yBeg,yEnd,yBegBad) => {//Xdir,Ydir : image monte/gauche("m") ou descend/droite("d"); retour : true ou false 
 		let posX = xBeg
@@ -206,16 +255,16 @@ const lancerCombat=(urlBack,numBad,fnScenario) => {
 	createDivPerso()
 	createDivZone(urlBack)
 
-
-	let heroes = persoTeam
-	heroes.forEach(function(perso) {
+  let heroes = persoTeam
+  let imagePerso = []
+	heroes.forEach((perso) => {
 		if (perso != undefined) {
 		createPicturePerso(perso,imagePerso)
   	}
 	})
 
 	//tab des méchants = on recupere la badteam fait sur selection des perso
-	badTeam.forEach(function(perso) {
+  	badTeam.forEach((perso) => {
 		createPicturePerso(perso,imageBad)
 	})
 
@@ -233,9 +282,10 @@ const lancerCombat=(urlBack,numBad,fnScenario) => {
 		imagePerso[i].addEventListener("click",(e)=>{
 			console.log("placer perso initial")
 			console.log(imagePerso[i])
-			placerPerso(imagePerso[i],"400px","450px",divZoneId)
-			placerPerso(imageBad[numBad],"400px","900px",divZoneId)
-	  createButtonFight(persoTeam[i],badTeam[numBad],i,urlBack)
+      placerPerso(imagePerso[i],"400px","450px",divZoneId)
+      imageHeroeSelect = imagePerso[i]
+		//	placerPerso(imageBad[numBad],"400px","900px",divZoneId)
+	  // createButtonFight(persoTeam[i],badTeam[numBad],i,urlBack)
 	  if (finish) {turn += 1}
       connectionSocket.send(JSON.stringify({'action':'playHeroe','numPartie': numPartie, 'pseudo': pseudo,
 	  heroePlay: persoTeam[i], 'turn' : turn }))
@@ -267,10 +317,10 @@ const persoPage = () => {
 	        selecteur.push(randomHeroes)
 	    }
 
-	    for (let i = 0; i < 3; i++) {
+	    /*for (let i = 0; i < 3; i++) {
 	        const randomBadHeroes = heroes[Math.floor((Math.random() * heroes.length))]
 	        badTeam.push(randomBadHeroes)
-	    }
+	    }*/
 	    console.log("Team des badHeroes : ")
 	    console.log(badTeam)
 	    //injection des heroes random dans le html
