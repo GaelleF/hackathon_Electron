@@ -52,15 +52,22 @@ connectionSocket.onmessage = (event) => {
       animation(imageHeroeSelect, badPerso, 400, 275, 450, 575, 900, i*1630)
     }
       setTimeout(() => {
-        console.log('msgInfo', data.msgInfo)
-        persoTeam = data.heroes
-        imageBad = []
-        imagePerso=[]
-      
-        fightScreen.removeChild(document.getElementById('divZoneId'))
-        fightScreen.removeChild(document.getElementById('divPersoId'))
-        lancerCombat('image/eiffel_tower.jpg',0)
-        finish = true
+        let divMessage = document.createElement("div")
+        divMessage.innerHTML =`${data.msgInfo}`
+        divMessage.id = "divMessageId"
+        document.getElementById('divZoneId').appendChild(divMessage)
+        setTimeout(()=> {
+
+          console.log('msgInfo', data.msgInfo)
+          persoTeam = data.heroes
+          imageBad = []
+          imagePerso=[]
+        
+          fightScreen.removeChild(document.getElementById('divZoneId'))
+          fightScreen.removeChild(document.getElementById('divPersoId'))
+          lancerCombat('image/eiffel_tower.jpg',0)
+          finish = true
+        },2000)
       },nbFight*1630)
     }
   
@@ -154,20 +161,13 @@ const animation = (perso,badPerso,xBeg,xEnd,yBeg,yEnd,yBegBad,time) => {
         placerPerso(persoBadSave,xBeg+"px",yBegBad+"px",divZoneId,'divZoneId')
       },1000)
 
-      /*console.log("retour = ")
-      if (retour) {moveHeroe(persoSave,xEnd,xBeg,yEnd,yBeg,"d","m",false)}*/
     }
-    else {//utiliser la fonction placerPerso?
+    else {
       posX--
       posY++
       posYbad--
-      /*console.log("frame function"+posX)
-        console.log(persoSave)*/
-      /*perso.style.top = posX +"px"
-      perso.style.left = posY +"px"*/
       placerPerso(persoSave,posX+"px",posY+"px",divZoneId,'divZoneId')
       placerPerso(persoBadSave,posX+"px",posYbad+"px",divZoneId,'divZoneId')
-      /*console.log("pos heroes x =" + posX +"y = "+ posY)*/
     }
   }
       const anim = setInterval(frame,5)
@@ -175,95 +175,7 @@ const animation = (perso,badPerso,xBeg,xEnd,yBeg,yEnd,yBegBad,time) => {
 }, time)
 }
 /*lancer la pâge combat avec les perso selectionné */
-const lancerCombat=(urlBack,numBad,fnScenario) => {
-
-/*creation du bouton fight si clic sur perso */
-	/*const createButtonFight = (perso1,perso2,i,urlB) => {
-		let fightButton = document.createElement("input")
-			fightButton.setAttribute("name","fightButton")
-	    	fightButton.setAttribute("value","FIGHT")
-	    	fightButton.setAttribute("type","button")
-			fightButton.style.position ="absolute"
-			fightButton.style.backgroundColor = "red"
-			fightButton.style.fontSize = "24px"
-			fightButton.style.padding = "10px"
-			fightButton.style.color = "white"
-			fightButton.id = "fightButtonId"
-			fightButton.style.top="800px"
-			fightButton.style.left="700px"
-			fightButton.width = "100px"
-	    	fightButton.addEventListener("click", (e)=> {
-	    		moveHeroe(imagePerso[i],imageBad[numBad],400,275,450,575,900)
-	    		// moveHeroe(imageBad[numBad],400,300,900,800,"m","d",true)
-	    		
-	    		perso1.powerstats.combat -= perso2.powerstats.strength
-	    		perso2.powerstats.combat -= perso1.powerstats.strength
-	    		if (perso2.powerstats.combat <= 0){
-	    				setTimeout(()=> {
-	    					console.log("timeout")
-	    					divZoneId.innerHTML= ''
-	    					divPersoId.innerHTML= ''
-	    					//divZoneId.removeChild(perso1)
-	    				  //divZoneId.removeChild(imageBad[numBad])
-	    					reset()
-							console.log(`${perso1.name} a gagné !!!!!!  `)
-							lancerCombat('image/eiffel_tower.jpg',1)
-	    				},1630)//setTimeout
-	    			}
-	    			
-	    		else if (perso1.powerstats.combat<=0) {
-	    			setTimeout(()=> {
-		    			persoTeam.splice(i-1,1)//suppression perso battu
-		    			imagePerso.splice(i-1,1)//suppression perso battu
-		    			divZoneId.innerHTML= ''
-	    				divPersoId.innerHTML= ''
-		    			reset()
-						console.log('perso2win')
-						lancerCombat('image/eiffel_tower.jpg',1)
-	    			},1630)//setTimeout
-	    		}
-	    	})
-
-	   		divZoneId.appendChild(fightButton);
-	}*/
-
-	const moveHeroe = (perso,badPerso,xBeg,xEnd,yBeg,yEnd,yBegBad) => {//Xdir,Ydir : image monte/gauche("m") ou descend/droite("d"); retour : true ou false 
-		let posX = xBeg
-		let posY = yBeg
-		let posYbad = yBegBad
-		const divZoneId = document.getElementById('divZoneId')
-		console.log("function moveHeroes")
-		console.log(perso)
-		const persoSave = perso
-		const persoBadSave = badPerso
-		//placerPerso(perso,"550px","300px",divZoneId)
-		const frame = (perso) => {
-			if (posX == xEnd) {
-				clearInterval(anim)
-				setTimeout(()=>{
-					placerPerso(persoSave,xBeg+"px",yBeg+"px",divZoneId,'divZoneId')
-					placerPerso(persoBadSave,xBeg+"px",yBegBad+"px",divZoneId,'divZoneId')
-				},1000)
-
-				/*console.log("retour = ")
-				if (retour) {moveHeroe(persoSave,xEnd,xBeg,yEnd,yBeg,"d","m",false)}*/
-			}
-			else {//utiliser la fonction placerPerso?
-				posX--
-				posY++
-				posYbad--
-				/*console.log("frame function"+posX)
-					console.log(persoSave)*/
-				/*perso.style.top = posX +"px"
-				perso.style.left = posY +"px"*/
-				placerPerso(persoSave,posX+"px",posY+"px",divZoneId,'divZoneId')
-				placerPerso(persoBadSave,posX+"px",posYbad+"px",divZoneId,'divZoneId')
-				/*console.log("pos heroes x =" + posX +"y = "+ posY)*/
-			}
-		}
-				const anim = setInterval(frame,5)
-
-	}
+const lancerCombat=(urlBack,numBad) => {
 
 	createDivPerso()
 	createDivZone(urlBack)
@@ -401,7 +313,6 @@ const pageConnexion = () => {
     let numInput = document.createElement("input")
     numInput.setAttribute("type","text")
     numInput.setAttribute("placeholder","numéro de la partie")
-    //numInput.style.color = "b"
     numInput.id = "numInputId"
     connexionDiv.appendChild(numInput);
   }
@@ -425,7 +336,7 @@ const pageConnexion = () => {
 		let goButton = document.createElement("input")
 				goButton.setAttribute("type","button")
         goButton.style.color = "white"
-        goButton.setAttribute("value","go")
+        goButton.setAttribute("value"," GO ")
 				goButton.id = "goButtonId"
 				goButton.addEventListener("click", (e)=> {
           numPartie = document.getElementById('numInputId').value
@@ -434,16 +345,14 @@ const pageConnexion = () => {
           reset()
           
           connectionSocket.send(JSON.stringify({'action':'connection','numPartie': numPartie, 'pseudo': pseudo }))
-            connexionDiv.innerHTML = `Hello ${pseudo}     partie n°${numPartie} `
+          connexionDiv.innerHTML = `Hello ${pseudo}     partie n°${numPartie} `
           persoPage()})
 				connexionDiv.appendChild(goButton);
-  }
-  
+  } 
   createNameInput() 
   createButtonConnexion()
   createNumInput()
   createButtonGo()
-
 }
 
 pageConnexion()

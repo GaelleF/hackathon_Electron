@@ -1,5 +1,10 @@
+document {
+    /*background-color: #000033; */
+}
+
 body{
-    background-color: #000033;
+   background-color: #000033;
+   height: 100vh;
 }
 #fightScreen {
     display: flex;
@@ -11,6 +16,7 @@ body{
 
 .dochoice {
     display: flex;
+   /* background-color: #000033;*/
     justify-content: center;
     font-size: 30px;
 }
@@ -39,6 +45,7 @@ span {
     align-items: center;
     justify-content: space-around;
     background-color: grey;
+    opacity:80%;
     font-size: 15px;
     color: #fff;
     border: 2px solid black;
@@ -56,7 +63,7 @@ span {
     flex-direction: column;
     align-items: center;
     justify-content: space-around;
-    background-color: grey;
+   /* background-color: grey;*/
     font-size: 15px;
     color: #fff;
     border: 3px solid black;
@@ -94,7 +101,7 @@ span {
     position: absolute;
     opacity: 0;
     top: 0;
-    right: -20px;
+    right: -100px;
     transition: 0.5s;
 }
 
@@ -104,44 +111,61 @@ span {
 
 .button_next:hover span:after {
     opacity: 1;
-    right: 0;
+    right: -100px;
 }
 
+#divMessageId {
+    z-index: 1000;
+    margin:auto;
+    position: absolute; /* postulat de départ */
+    top: 25%;  /* à 50%/50% du parent référent */
+    font-size: 5em;
+    text-align: center;
+    width: 100%;
+    
+
+}
+/*
 .letroll {
     height: auto;
     width: 100%;
     margin-bottom: 50px;
 }
-
-.letexte{
-    
+.letexte{ 
     font-size: 42px;
-    color: #FFF;
-
-    
+    color: #FFF;   
 }
 .patate{
     color:#fff;
-    /* border: 4px solid #f4511e;*/
+     border: 4px solid #f4511e;
     border-radius: 15px; 
     padding: 5px;
     padding-left: 15px;
     background-color: #f4511e ;
     box-shadow: 10px 10px 50px rgb(244, 81, 30);
-}
+}*/
 
 /******* connexion  ***************************/
 
-#connexion {
+#connexion-container {
     padding: 30px;
     display : flex;
-    background-color: green;
+    justify-content: space-around;
+    background-color: #000033;
+    color: white;
 }
 
-#connexionButtonId {
+#pseudoInputId, #numInputId {
+    padding: 3px;
+    margin : 10px;
+
+}
+
+#connexionButtonId, #goButtonId {
     background-color: black;
+    padding: 3px;
 }
 
 #infoSocket {
-    background-color: aqua;
+    color: white;
 }

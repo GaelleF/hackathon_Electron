@@ -52,7 +52,7 @@ wss.on('connection', function connection(ws) {
               player1.adversaire = player2.heroePlay
               player2.adversaire = player1.heroePlay
               //maj adversaire
-              while ( player1.heroePlay.powerstats.combat > 0 && player1.heroePlay.powerstats.combat > 0 ) {
+              while ( player1.heroePlay.powerstats.combat > 0 && player2.heroePlay.powerstats.combat > 0 ) {
                 player1.heroePlay.powerstats.combat -= player2.heroePlay.powerstats.strength
                 player2.heroePlay.powerstats.combat -= player1.heroePlay.powerstats.strength
                 console.log('player1', player1.heroePlay)
@@ -60,7 +60,19 @@ wss.on('connection', function connection(ws) {
                 nbFight += 1
                 //suppr heros mort and maj combat heros qui a combattu : badteam goodteam et adversaire
               }
-              if (player1.heroePlay.powerstats.combat <= 0) { 
+              if (player1.heroePlay.powerstats.combat <= 0 && player2.heroePlay.powerstats.combat <= 0) { 
+                player1.heroes = player1.heroes.filter(heroe => heroe.id !== player1.heroePlay.id)
+                player2.heroes = player2.heroes.filter(heroe => heroe.id !== player2.heroePlay.id)
+                player1.msgInfo = `${player1.heroePlay.name} et ${player2.heroePlay.name} ont disparu ! `
+                player2.msgInfo = `${player1.heroePlay.name} et ${player2.heroePlay.name} ont disparu ! `
+                // player2.heroes = player2.heroes.forEach(heroe => {if(heroe.id === player2.heroePlay.id){
+                // heroe.powerstats.combat = player2.heroePlay.powerstats.combat }!!!!!!!!!!!!!!!!!! A faire !!!!!!!!!!!!!!!!!!!!
+                // ajouter phrase personalisé
+                console.log('player1 lose', player1.heroes)
+                console.log('player1 lose : player2', player2.heroes)
+              }
+
+             else if (player1.heroePlay.powerstats.combat <= 0) { 
                 player1.heroes = player1.heroes.filter(heroe => heroe.id !== player1.heroePlay.id)
                 player1.msgInfo = `${player1.heroePlay.name} a perdu ! `
                 player2.msgInfo = `${player2.heroePlay.name} a gagné ! `
@@ -69,24 +81,27 @@ wss.on('connection', function connection(ws) {
                 // ajouter phrase personalisé
                 console.log('player1 lose', player1.heroes)
                 console.log('player1 lose : player2', player2.heroes)
-
               }
 
-              if (player2.heroePlay.powerstats.combat <= 0) { 
+              else if (player2.heroePlay.powerstats.combat <= 0) { 
                 player2.heroes = player2.heroes.filter(heroe => heroe.id !== player2.heroePlay.id)
                 player2.msgInfo = `${player2.heroePlay.name} a perdu ! `
                 player1.msgInfo = `${player1.heroePlay.name} a gagné ! `
                 console.log('player2 lose', player1.heroes)
+              }
+              if (player1.heroes.length === 0){
+                player2.msgInfo = `${player2.pseudo} a gagné ! `
+                player1.msgInfo = `${player2.pseudo} a gagné ! `
+              }
+              if (player2.heroes.length === 0){
+                player2.msgInfo = `${player1.pseudo} a gagné ! `
+                player1.msgInfo = `${player1.pseudo} a gagné ! `
               }
 
 
               for (player of games[data.numPartie]) {
                 player.ws.send(JSON.stringify({'message':'play turn', 'heroes':player.heroes, 'heroePlay': player.heroePlay,'adversaire': player.adversaire, 'nbFight': nbFight, 'msgInfo': player.msgInfo}))
               }
-
-
-
-
             }
 
         }
