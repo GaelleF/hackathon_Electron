@@ -6,6 +6,8 @@ let badTeam =[]
 let numPartie = ''
 let Pseudo = ''
 let msgSocket = ''
+let turn = 0
+let finish = true
 
 const map_element =document.getElementById('map_container')
 const fightScreenElt = document.getElementById("fightScreen")
@@ -13,11 +15,11 @@ const fightScreen = document.getElementById("fightScreen")
 const injectHeroes = document.getElementById('select_heroes')
 const choix = document.getElementById('choice')
 const injectTeamHeroes = document.getElementById('teamPerso')
-const btn = document.getElementById('btn_next')
-const btn2 = document.getElementById('btn_next2')
 const elem1 =document.getElementById('tour')
 const elem2 =document.getElementById('gare')
 const elem3 =document.getElementById('WCS')
+const btn = document.getElementById('btn_next')
+const btn2 = document.getElementById('btn_next2')
 const story1 = document.getElementById('story')
 const connexionDiv = document.getElementById('connexion')
 
@@ -231,9 +233,11 @@ const lancerCombat=(urlBack,numBad,fnScenario) => {
 			console.log(imagePerso[i])
 			placerPerso(imagePerso[i],"400px","450px",divZoneId)
 			placerPerso(imageBad[numBad],"400px","900px",divZoneId)
-      createButtonFight(persoTeam[i],badTeam[numBad],i,urlBack)
+	  createButtonFight(persoTeam[i],badTeam[numBad],i,urlBack)
+	  if (finish) {turn += 1}
       connectionSocket.send(JSON.stringify({'action':'playHeroe','numPartie': numPartie, 'pseudo': pseudo,
-      heroePlay: persoTeam[i] }))
+	  heroePlay: persoTeam[i], 'turn' : turn }))
+	  finish = false
 		})
 	}
 }
