@@ -43,18 +43,27 @@ connectionSocket.onmessage = (event) => {
     let  data = JSON.parse(event.data)
     console.log('PLAY TURN ', data.message, data)
     let nbFight = data.nbFight
-    imageBad = []
+    imageBad =[]
     createPicturePerso(data.adversaire, imageBad)
     let badPerso = imageBad[0]
+    console.log('pre anim bad', badPerso, imageBad)
     for (let i = 0; i < nbFight; i++) {
       console.log('ANIMATION', nbFight)
       animation(imageHeroeSelect, badPerso, 400, 275, 450, 575, 900, i*1630)
     }
+      setTimeout(() => {
+        console.log('msgInfo', data.msgInfo)
+        persoTeam = data.heroes
+        imageBad = []
+        imagePerso=[]
+      
+        fightScreen.removeChild(document.getElementById('divZoneId'))
+        fightScreen.removeChild(document.getElementById('divPersoId'))
+        lancerCombat('image/eiffel_tower.jpg',0)
+        finish = true
+      },nbFight*1630)
+    }
   
-    //bcp a faire !
-    //1630)setTimeout
-  }
-
 
 }
 
@@ -99,14 +108,18 @@ const createDivZone = (urlBack) => {
 /* création perso*/
 const createPicturePerso = (perso,tab) => {
 	let img = new Image()
-	img.src = perso.images.sm
+  img.src = perso.images.sm 
 	if (tab.length<6){tab.push(img)}
 }
 
-const placerPerso = (persoImg,posX, posY,emplacement)=>{
+const placerPerso = (persoImg,posX, posY,emplacement,parent)=>{
 	persoImg.style.position = "absolute";
 	persoImg.style.top = posX;
-	persoImg.style.left = posY;
+  persoImg.style.left = posY;
+  if (parent === 'divZoneId') {
+    persoImg.className = 'imgChildZone'
+  }
+  else {persoImg.className = 'imgChildPerso'}
 	emplacement.appendChild(persoImg);
 }
 
@@ -137,8 +150,8 @@ const animation = (perso,badPerso,xBeg,xEnd,yBeg,yEnd,yBegBad,time) => {
     if (posX == xEnd) {
       clearInterval(anim)
       setTimeout(()=>{
-        placerPerso(persoSave,xBeg+"px",yBeg+"px",divZoneId)
-        placerPerso(persoBadSave,xBeg+"px",yBegBad+"px",divZoneId)
+        placerPerso(persoSave,xBeg+"px",yBeg+"px",divZoneId,'divZoneId')
+        placerPerso(persoBadSave,xBeg+"px",yBegBad+"px",divZoneId,'divZoneId')
       },1000)
 
       /*console.log("retour = ")
@@ -152,8 +165,8 @@ const animation = (perso,badPerso,xBeg,xEnd,yBeg,yEnd,yBegBad,time) => {
         console.log(persoSave)*/
       /*perso.style.top = posX +"px"
       perso.style.left = posY +"px"*/
-      placerPerso(persoSave,posX+"px",posY+"px",divZoneId)
-      placerPerso(persoBadSave,posX+"px",posYbad+"px",divZoneId)
+      placerPerso(persoSave,posX+"px",posY+"px",divZoneId,'divZoneId')
+      placerPerso(persoBadSave,posX+"px",posYbad+"px",divZoneId,'divZoneId')
       /*console.log("pos heroes x =" + posX +"y = "+ posY)*/
     }
   }
@@ -228,8 +241,8 @@ const lancerCombat=(urlBack,numBad,fnScenario) => {
 			if (posX == xEnd) {
 				clearInterval(anim)
 				setTimeout(()=>{
-					placerPerso(persoSave,xBeg+"px",yBeg+"px",divZoneId)
-					placerPerso(persoBadSave,xBeg+"px",yBegBad+"px",divZoneId)
+					placerPerso(persoSave,xBeg+"px",yBeg+"px",divZoneId,'divZoneId')
+					placerPerso(persoBadSave,xBeg+"px",yBegBad+"px",divZoneId,'divZoneId')
 				},1000)
 
 				/*console.log("retour = ")
@@ -243,8 +256,8 @@ const lancerCombat=(urlBack,numBad,fnScenario) => {
 					console.log(persoSave)*/
 				/*perso.style.top = posX +"px"
 				perso.style.left = posY +"px"*/
-				placerPerso(persoSave,posX+"px",posY+"px",divZoneId)
-				placerPerso(persoBadSave,posX+"px",posYbad+"px",divZoneId)
+				placerPerso(persoSave,posX+"px",posY+"px",divZoneId,'divZoneId')
+				placerPerso(persoBadSave,posX+"px",posYbad+"px",divZoneId,'divZoneId')
 				/*console.log("pos heroes x =" + posX +"y = "+ posY)*/
 			}
 		}
@@ -272,8 +285,8 @@ const lancerCombat=(urlBack,numBad,fnScenario) => {
 
 	for(let i = 0; i < persoTeam.length;i++){
 		if (persoTeam[i].powerstats.combat >= 0) {
-			placerPerso(imagePerso[i],tabX[i],"30px",divPersoId)
-			placerPerso(caractere(persoTeam[i]),tabX[i],"200px",divPersoId)
+			placerPerso(imagePerso[i],tabX[i],"30px",divPersoId,'divPersoId')
+			placerPerso(caractere(persoTeam[i]),tabX[i],"200px",divPersoId,'divPersoId')
 		}
 	}
 
@@ -282,7 +295,7 @@ const lancerCombat=(urlBack,numBad,fnScenario) => {
 		imagePerso[i].addEventListener("click",(e)=>{
 			console.log("placer perso initial")
 			console.log(imagePerso[i])
-      placerPerso(imagePerso[i],"400px","450px",divZoneId)
+      placerPerso(imagePerso[i],"400px","450px",divZoneId,'divZoneId')
       imageHeroeSelect = imagePerso[i]
 		//	placerPerso(imageBad[numBad],"400px","900px",divZoneId)
 	  // createButtonFight(persoTeam[i],badTeam[numBad],i,urlBack)
