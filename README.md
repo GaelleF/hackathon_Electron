@@ -1,2 +1,5 @@
-# help_us
-hackathon 1 wcs projet "help_us"
+# web socket fight
+
+hackathon 4 wcs : web socket fight
+
+from hackthon wildCodeSchool 1 ("help_us")
