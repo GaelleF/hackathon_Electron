@@ -3,6 +3,13 @@ let persoTeam = []
 let imagePerso=[]
 let imageBad =[]
 let badTeam =[]
+let numPartie = ''
+let Pseudo = ''
+let msgSocket = ''
+let turn = 0
+let finish = true
+let adversaire = {}
+let imageHeroeSelect = {}
 
 const map_element =document.getElementById('map_container')
 const fightScreenElt = document.getElementById("fightScreen")
@@ -10,13 +17,62 @@ const fightScreen = document.getElementById("fightScreen")
 const injectHeroes = document.getElementById('select_heroes')
 const choix = document.getElementById('choice')
 const injectTeamHeroes = document.getElementById('teamPerso')
-const btn = document.getElementById('btn_next')
-const btn2 = document.getElementById('btn_next2')
 const elem1 =document.getElementById('tour')
 const elem2 =document.getElementById('gare')
 const elem3 =document.getElementById('WCS')
+const btn = document.getElementById('btn_next')
+const btn2 = document.getElementById('btn_next2')
 const story1 = document.getElementById('story')
+const connexionDiv = document.getElementById('connexion')
 
+/*connexion webSocket *******************************/
+const connectionSocket = new WebSocket('ws://localhost:8080','incoming')
+connectionSocket.onmessage = (event) => {
+  console.log('event', event)
+  message = JSON.parse(event.data).message
+  const infoSocketDiv = document.getElementById('infoSocket')
+  msgSocket = JSON.parse(event.data).message
+  console.log(msgSocket)
+  infoSocketDiv.innerHTML = `message from socket : ${msgSocket}`
+
+  if (message === 'heroes of your enemy') {
+    badTeam = JSON.parse(event.data).badTeam
+    console.log('badteam')
+  }
+  if (message === 'play turn') {
+    let  data = JSON.parse(event.data)
+    console.log('PLAY TURN ', data.message, data)
+    let nbFight = data.nbFight
+    imageBad =[]
+    createPicturePerso(data.adversaire, imageBad)
+    let badPerso = imageBad[0]
+    console.log('pre anim bad', badPerso, imageBad)
+    for (let i = 0; i < nbFight; i++) {
+      console.log('ANIMATION', nbFight)
+      animation(imageHeroeSelect, badPerso, 400, 275, 450, 575, 900, i*1630)
+    }
+      setTimeout(() => {
+        let divMessage = document.createElement("div")
+        divMessage.innerHTML =`${data.msgInfo}`
+        divMessage.id = "divMessageId"
+        document.getElementById('divZoneId').appendChild(divMessage)
+        setTimeout(()=> {
+
+          console.log('msgInfo', data.msgInfo)
+          persoTeam = data.heroes
+          imageBad = []
+          imagePerso=[]
+        
+          fightScreen.removeChild(document.getElementById('divZoneId'))
+          fightScreen.removeChild(document.getElementById('divPersoId'))
+          lancerCombat('image/eiffel_tower.jpg',0)
+          finish = true
+        },2000)
+      },nbFight*1630)
+    }
+  
+
+}
 
 const reset = () => {
 	fightScreenElt.innerHTML = ""
@@ -29,38 +85,10 @@ const reset = () => {
 	elem1.innerHTML = ""
 	elem2.innerHTML = ""
 	elem3.innerHTML = ""
-	story1.innerHTML = ""
+  story1.innerHTML = ""
+  connexionDiv.innerHTML = ""
 }
 
-/*creation de la map */
-
-const createMap = () => {
-	reset()
-	map_element.innerHTML = `<img src ="image/paris_map.jpg" alt="Carte des combats" style="max-width: 1800px;
-		height: auto;">`
-
-	elem1.innerHTML = `<img id="combat1" src ="image/eiffel_tower.png" alt="Tour Eiffel" 
-	style="max-width: 100px; height:auto; position:absolute; top: 500px; left: 700px">`
-	combat1.addEventListener("click", (e)=>{
-		reset()
-    	lancerCombat("url('image/eiffel_tower.jpg')",0,"fnscenario")
-	})
-
-	elem2.innerHTML = `<img id="combat2" src ="image/gare.png" alt="Gare de Lyon" 
-	style="max-width: 200px; height:auto; position:absolute; top: 600px; left: 1100px">`
-	combat2.addEventListener("click", (e)=>{
-		reset()
-    	lancerCombat("url('image/gare.jpg')",1,"fnScenario")
-	})
-
-	elem3.innerHTML = `<img id="combat3" src ="image/WCS.png" alt="Wild Code School" 
-	style="max-width: 100px; height:auto; position:absolute; top: 600px; left: 900px">`
-	combat3.addEventListener("click", (e)=>{
-	reset()
-	textPage("Les valeureux héros sont victorieux de leurs défis, et peuvent maintenant délivrer de leur victimes de la privation de la fibre.<br> Par chance, en retournant à la WCS les supers-héros ont aperçus un technicien 'Orange' sur leur chemin et l'ont trainé jusqu'a la WCS.<br>FIN HAPPY","image/trio_de_choc.png")
-	btn2.innerHTML = ""
-	})
-}
 
 /*création zone de fight*/
 
@@ -74,7 +102,7 @@ const createDivPerso = () => {
 }
 const createDivZone = (urlBack) => {
 	let divZone = document.createElement("div")
-	divZone.style.backgroundImage = urlBack
+	divZone.style.backgroundImage = "url('image/eiffel_tower.jpg')"
 	divZone.style.height = "1260px"
 	divZone.style.position ="absolute"
 	divZone.style.top="0px"
@@ -87,18 +115,22 @@ const createDivZone = (urlBack) => {
 /* création perso*/
 const createPicturePerso = (perso,tab) => {
 	let img = new Image()
-	img.src = perso.images.sm
+  img.src = perso.images.sm 
 	if (tab.length<6){tab.push(img)}
 }
 
-const placerPerso = (persoImg,posX, posY,emplacement)=>{
+const placerPerso = (persoImg,posX, posY,emplacement,parent)=>{
 	persoImg.style.position = "absolute";
 	persoImg.style.top = posX;
-	persoImg.style.left = posY;
+  persoImg.style.left = posY;
+  if (parent === 'divZoneId') {
+    persoImg.className = 'imgChildZone'
+  }
+  else {persoImg.className = 'imgChildPerso'}
 	emplacement.appendChild(persoImg);
 }
 
-//div avec caractéristique
+//div avec caractéristiques
 const caractere = (perso) => {
 	let divCaract = document.createElement("div")
 	divCaract.style.color = "white"
@@ -110,108 +142,54 @@ const caractere = (perso) => {
 	return divCaract
 }
 
+const animation = (perso,badPerso,xBeg,xEnd,yBeg,yEnd,yBegBad,time) => {
+  let posX = xBeg
+  let posY = yBeg
+  let posYbad = yBegBad
+  const divZoneId = document.getElementById('divZoneId')
+  console.log("function moveHeroes")
+  console.log(perso)
+  const persoSave = perso
+  const persoBadSave = badPerso
+  //placerPerso(perso,"550px","300px",divZoneId)
+  setTimeout(() => {
+  const frame = (perso) => {
+    if (posX == xEnd) {
+      clearInterval(anim)
+      setTimeout(()=>{
+        placerPerso(persoSave,xBeg+"px",yBeg+"px",divZoneId,'divZoneId')
+        placerPerso(persoBadSave,xBeg+"px",yBegBad+"px",divZoneId,'divZoneId')
+      },1000)
+
+    }
+    else {
+      posX--
+      posY++
+      posYbad--
+      placerPerso(persoSave,posX+"px",posY+"px",divZoneId,'divZoneId')
+      placerPerso(persoBadSave,posX+"px",posYbad+"px",divZoneId,'divZoneId')
+    }
+  }
+      const anim = setInterval(frame,5)
+
+}, time)
+}
 /*lancer la pâge combat avec les perso selectionné */
-const lancerCombat=(urlBack,numBad,fnScenario) => {
-
-/*creation du bouton fight si clic sur perso */
-	const createButtonFight = (perso1,perso2,i,urlB) => {
-		let fightButton = document.createElement("input")
-			fightButton.setAttribute("name","fightButton")
-	    	fightButton.setAttribute("value","FIGHT")
-	    	fightButton.setAttribute("type","button")
-			fightButton.style.position ="absolute"
-			fightButton.style.backgroundColor = "red"
-			fightButton.style.fontSize = "24px"
-			fightButton.style.padding = "10px"
-			fightButton.style.color = "white"
-			fightButton.id = "fightButtonId"
-			fightButton.style.top="800px"
-			fightButton.style.left="700px"
-			fightButton.width = "100px"
-	    	fightButton.addEventListener("click", (e)=> {
-	    		moveHeroe(imagePerso[i],imageBad[numBad],400,275,450,575,900)
-	    		/*moveHeroe(imageBad[numBad],400,300,900,800,"m","d",true)*/
-	    		
-	    		perso1.powerstats.combat -= perso2.powerstats.strength
-	    		perso2.powerstats.combat -= perso1.powerstats.strength
-	    		if (perso2.powerstats.combat <= 0){
-	    				setTimeout(()=> {
-	    					console.log("timeout")
-	    					divZoneId.innerHTML= ''
-	    					divPersoId.innerHTML= ''
-	    					//divZoneId.removeChild(perso1)
-	    				  //divZoneId.removeChild(imageBad[numBad])
-	    					reset()
-	    					console.log(`${perso1.name} a gagné !!!!!!  `)
-	    				},1630)//setTimeout
-	    			}
-	    			
-	    		else if (perso1.powerstats.combat<=0) {
-	    			setTimeout(()=> {
-		    			persoTeam.splice(i-1,1)//suppression perso battu
-		    			imagePerso.splice(i-1,1)//suppression perso battu
-		    			divZoneId.innerHTML= ''
-	    				divPersoId.innerHTML= ''
-		    			reset()
-		    			console.log('perso2win')
-	    			},1630)//setTimeout
-	    		}
-	    	})
-
-	   		divZoneId.appendChild(fightButton);
-	}
-
-	const moveHeroe = (perso,badPerso,xBeg,xEnd,yBeg,yEnd,yBegBad) => {//Xdir,Ydir : image monte/gauche("m") ou descend/droite("d"); retour : true ou false 
-		let posX = xBeg
-		let posY = yBeg
-		let posYbad = yBegBad
-		const divZoneId = document.getElementById('divZoneId')
-		console.log("function moveHeroes")
-		console.log(perso)
-		const persoSave = perso
-		const persoBadSave = badPerso
-		//placerPerso(perso,"550px","300px",divZoneId)
-		const frame = (perso) => {
-			if (posX == xEnd) {
-				clearInterval(anim)
-				setTimeout(()=>{
-					placerPerso(persoSave,xBeg+"px",yBeg+"px",divZoneId)
-					placerPerso(persoBadSave,xBeg+"px",yBegBad+"px",divZoneId)
-				},1000)
-
-				/*console.log("retour = ")
-				if (retour) {moveHeroe(persoSave,xEnd,xBeg,yEnd,yBeg,"d","m",false)}*/
-			}
-			else {//utiliser la fonction placerPerso?
-				posX--
-				posY++
-				posYbad--
-				/*console.log("frame function"+posX)
-					console.log(persoSave)*/
-				/*perso.style.top = posX +"px"
-				perso.style.left = posY +"px"*/
-				placerPerso(persoSave,posX+"px",posY+"px",divZoneId)
-				placerPerso(persoBadSave,posX+"px",posYbad+"px",divZoneId)
-				/*console.log("pos heroes x =" + posX +"y = "+ posY)*/
-			}
-		}
-				const anim = setInterval(frame,5)
-
-	}
+const lancerCombat=(urlBack,numBad) => {
 
 	createDivPerso()
 	createDivZone(urlBack)
 
-
-	let heroes = persoTeam
-	heroes.forEach(function(perso) {
+  let heroes = persoTeam
+  let imagePerso = []
+	heroes.forEach((perso) => {
 		if (perso != undefined) {
 		createPicturePerso(perso,imagePerso)
   	}
 	})
 
 	//tab des méchants = on recupere la badteam fait sur selection des perso
-	badTeam.forEach(function(perso) {
+  	badTeam.forEach((perso) => {
 		createPicturePerso(perso,imageBad)
 	})
 
@@ -219,8 +197,8 @@ const lancerCombat=(urlBack,numBad,fnScenario) => {
 
 	for(let i = 0; i < persoTeam.length;i++){
 		if (persoTeam[i].powerstats.combat >= 0) {
-			placerPerso(imagePerso[i],tabX[i],"30px",divPersoId)
-			placerPerso(caractere(persoTeam[i]),tabX[i],"200px",divPersoId)
+			placerPerso(imagePerso[i],tabX[i],"30px",divPersoId,'divPersoId')
+			placerPerso(caractere(persoTeam[i]),tabX[i],"200px",divPersoId,'divPersoId')
 		}
 	}
 
@@ -229,14 +207,19 @@ const lancerCombat=(urlBack,numBad,fnScenario) => {
 		imagePerso[i].addEventListener("click",(e)=>{
 			console.log("placer perso initial")
 			console.log(imagePerso[i])
-			placerPerso(imagePerso[i],"400px","450px",divZoneId)
-			placerPerso(imageBad[numBad],"400px","900px",divZoneId)
-			createButtonFight(persoTeam[i],badTeam[numBad],i,urlBack)
+      placerPerso(imagePerso[i],"400px","450px",divZoneId,'divZoneId')
+      imageHeroeSelect = imagePerso[i]
+		//	placerPerso(imageBad[numBad],"400px","900px",divZoneId)
+	  // createButtonFight(persoTeam[i],badTeam[numBad],i,urlBack)
+	  if (finish) {turn += 1}
+      connectionSocket.send(JSON.stringify({'action':'playHeroe','numPartie': numPartie, 'pseudo': pseudo,
+	  heroePlay: persoTeam[i], 'turn' : turn }))
+	  finish = false
 		})
 	}
 }
 
-//creer page de selection des persos
+/**********************creer page de selection des persos ***********************************************************************/
 const persoPage = () => {
 	const baseUrl = 'https://cdn.rawgit.com/akabab/superhero-api/0.2.0/api'
 
@@ -259,12 +242,10 @@ const persoPage = () => {
 	        selecteur.push(randomHeroes)
 	    }
 
-	    // bad random team
-	    /*const badTeam = []*/
-	    for (let i = 0; i < 3; i++) {
+	    /*for (let i = 0; i < 3; i++) {
 	        const randomBadHeroes = heroes[Math.floor((Math.random() * heroes.length))]
 	        badTeam.push(randomBadHeroes)
-	    }
+	    }*/
 	    console.log("Team des badHeroes : ")
 	    console.log(badTeam)
 	    //injection des heroes random dans le html
@@ -275,10 +256,9 @@ const persoPage = () => {
 	                <h3>${monarray.name}</h3>
 	                <span>Life : ${monarray.powerstats.combat}</span>
 	                <span>Attack : ${monarray.powerstats.strength}</span>
-	            </div>
-	    `
-	    }
-
+	            </div>	    `
+      }
+      
 	    injectHeroes.innerHTML = selecteur.map(heroesElement).join('')
 
 	    //Creation de la team
@@ -289,8 +269,6 @@ const persoPage = () => {
 	        persoTeam.push(fichePerso)
 	        console.log("Team des superHeroes : ")
 	        console.log(persoTeam)
-
-
 	        injectTeamHeroes.innerHTML = persoTeam.map(heroesTeamElement).join('')
 	    })
 
@@ -310,6 +288,9 @@ const persoPage = () => {
 	   
 	    btn.innerHTML = '<button class="button_next"><span>Suite</span></button>'
 	    btn.addEventListener("click",(e)=>{
+        //envoi au socket
+        connectionSocket.send(JSON.stringify({'action':'chooseHeroes','numPartie': numPartie, 'pseudo': pseudo,
+         'heroes': persoTeam}))
 	    	reset()
 	    	lancerCombat('image/eiffel_tower.jpg',0)
 	    })
@@ -318,24 +299,60 @@ const persoPage = () => {
 	start()
 }
 
-//creation des pages de texte
-const textPage = (text, url) => {
-    story1.innerHTML = `<div class="letexte">${text} <img class="letroll" src=${url} /></div>`
-    btn2.innerHTML = '<button class="button_next"><span>Suite</span></button>'
-    btn2.addEventListener("click",(e)=>{
-    	reset()
-    	createMap()
-    })
+const pageConnexion = () => {
+
+  const createNameInput=()=> {
+    let pseudoInput = document.createElement("input")
+    pseudoInput.setAttribute("type","text")
+    pseudoInput.setAttribute("placeholder","PSEUDO")
+    pseudoInput.id = "pseudoInputId"
+    connexionDiv.appendChild(pseudoInput);
+  }
+  
+  const createNumInput=()=> {
+    let numInput = document.createElement("input")
+    numInput.setAttribute("type","text")
+    numInput.setAttribute("placeholder","numéro de la partie")
+    numInput.id = "numInputId"
+    connexionDiv.appendChild(numInput);
+  }
+
+
+	const createButtonConnexion = () => {
+		let connexionButton = document.createElement("input")
+				connexionButton.setAttribute("type","button")
+        connexionButton.style.color = "white"
+        connexionButton.setAttribute("value","CREER PARTIE")
+				connexionButton.id = "connexionButtonId"
+				connexionButton.addEventListener("click", (e)=> {
+          const numRandom = Math.floor(Math.random()*100000)
+          numInput = document.getElementById('numInputId')
+          numInput.value = numRandom
+        })
+				connexionDiv.appendChild(connexionButton);
+  }
+
+  const createButtonGo = () => {
+		let goButton = document.createElement("input")
+				goButton.setAttribute("type","button")
+        goButton.style.color = "white"
+        goButton.setAttribute("value"," GO ")
+				goButton.id = "goButtonId"
+				goButton.addEventListener("click", (e)=> {
+          numPartie = document.getElementById('numInputId').value
+          pseudo = document.getElementById('pseudoInputId').value
+          console.log('partie co', numPartie, pseudo)
+          reset()
+          
+          connectionSocket.send(JSON.stringify({'action':'connection','numPartie': numPartie, 'pseudo': pseudo }))
+          connexionDiv.innerHTML = `Hello ${pseudo}     partie n°${numPartie} `
+          persoPage()})
+				connexionDiv.appendChild(goButton);
+  } 
+  createNameInput() 
+  createButtonConnexion()
+  createNumInput()
+  createButtonGo()
 }
 
-const textPageIntro = (text, url) => {
-    story1.innerHTML = `<div class="letexte">${text} <img class="letroll" src=${url} /></div>`
-    btn2.innerHTML = '<button class="button_next"><span>Suite</span></button>'
-    btn2.addEventListener("click",(e)=>{
-    	reset()
-    	persoPage()
-    })
-}
-
-//Lancement
-persoPage()
+pageConnexion()
